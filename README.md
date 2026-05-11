@@ -150,7 +150,7 @@ Filtros obrigatórios:
 
 > Esses filtros permitem ao usuário encontrar rapidamente o ativo desejado e gerar relatórios mais precisos.
 
-## 6. Descrição do relatório em PDF
+## 6. Descrição do relatório
 
 - O relatório consolida a lista de ativos com base nos filtros aplicados.
 - Deve incluir os seguintes dados:
