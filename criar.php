@@ -29,6 +29,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':resp' => $fk_responsavel ?: null,
         ]);
 
+        // Notificar responsável por e-mail (se configurado)
+        if (!empty($fk_responsavel)) {
+            $idNovo = $pdo->lastInsertId();
+            $stmtEmail = $pdo->prepare("SELECT email, nome FROM funcionarios WHERE id_funcionario = :id LIMIT 1");
+            $stmtEmail->execute([':id' => $fk_responsavel]);
+            $resp = $stmtEmail->fetch();
+            if ($resp && !empty($resp['email'])) {
+                require_once 'send_email.php';
+                $to = $resp['email'];
+                $subject = "Novo ativo atribuído: " . $nome_ativo;
+                $html = "<p>Olá " . htmlspecialchars($resp['nome']) . ",</p>\n" .
+                        "<p>Um novo ativo foi cadastrado e atribuído a você:</p>\n" .
+                        "<ul>\n<li><strong>Nome:</strong> " . htmlspecialchars($nome_ativo) . "</li>\n" .
+                        "<li><strong>Tipo:</strong> " . htmlspecialchars($tipo) . "</li>\n" .
+                        "<li><strong>ID:</strong> " . $idNovo . "</li>\n</ul>\n" .
+                        "<p>Abra o sistema para ver mais detalhes.</p>";
+                send_email($to, $subject, $html, strip_tags($html));
+            }
+        }
+
         header('Location: index.php?msg=Ativo+criado+com+sucesso');
         exit();
     }

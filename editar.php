@@ -44,6 +44,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':id' => $id,
         ]);
 
+        // Notificar responsável por e-mail (se configurado)
+        if (!empty($fk_responsavel)) {
+            $stmtEmail = $pdo->prepare("SELECT email, nome FROM funcionarios WHERE id_funcionario = :id LIMIT 1");
+            $stmtEmail->execute([':id' => $fk_responsavel]);
+            $resp = $stmtEmail->fetch();
+            if ($resp && !empty($resp['email'])) {
+                require_once 'send_email.php';
+                $to = $resp['email'];
+                $subject = "Ativo atualizado: " . $nome_ativo;
+                $html = "<p>Olá " . htmlspecialchars($resp['nome']) . ",</p>\n" .
+                        "<p>O ativo abaixo foi atualizado:</p>\n" .
+                        "<ul>\n<li><strong>Nome:</strong> " . htmlspecialchars($nome_ativo) . "</li>\n" .
+                        "<li><strong>Tipo:</strong> " . htmlspecialchars($tipo) . "</li>\n" .
+                        "<li><strong>ID:</strong> " . $id . "</li>\n</ul>\n" .
+                        "<p>Abra o sistema para ver mais detalhes.</p>";
+                send_email($to, $subject, $html, strip_tags($html));
+            }
+        }
+
         header('Location: index.php?msg=Ativo+atualizado+com+sucesso');
         exit();
     }

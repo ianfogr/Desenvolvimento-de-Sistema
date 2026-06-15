@@ -11,4 +11,9 @@ try {
 } catch (PDOException $e) {
     die("Erro na conexão: " . $e->getMessage());
 }
+
+// Mail / Resend configuration
+// Set the environment variables RESEND_API_KEY and MAIL_FROM in your server
+$RESEND_API_KEY = getenv('RESEND_API_KEY') ?: '';
+$MAIL_FROM = getenv('MAIL_FROM') ?: 'no-reply@safeaudit.com';
 ?>
